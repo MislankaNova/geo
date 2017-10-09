@@ -24,7 +24,7 @@ void GEO_GEN_UpdateSlope();
 
 void GEO_GEN_CalculateHumidity();
 
-void GEO_GEN_GenerateRivers(bool erode);
+void GEO_GEN_GenerateRivers();
 
 void GEO_GEN_GenerateLakes();
 

@@ -39,7 +39,7 @@ void _GEN_ErodeBack(
   }
 }
 
-void GEO_GEN_GenerateRivers(bool erode) {
+void GEO_GEN_GenerateRivers() {
   for (int y = 1; y < MAP_SIZE - 1; ++y) {
     for (int x = 1; x < MAP_SIZE - 1; ++x) {
       TILE(y, x)->flow = 0;
@@ -61,17 +61,15 @@ void GEO_GEN_GenerateRivers(bool erode) {
           last = next;
           next = next->adj[next->down];
         }
-        if (erode) {
-          _GEN_ErodeBack(
-              last,
-              last->flow,
-              last->flow,
-              last->flow,
-              last->flow,
-              last->flow,
-              last->flow
-          );
-        }
+        _GEN_ErodeBack(
+            last,
+            last->flow,
+            last->flow,
+            last->flow,
+            last->flow,
+            last->flow,
+            last->flow
+        );
       }
     }
   }

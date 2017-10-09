@@ -58,7 +58,7 @@ void GEO_NewGeo(long int seed) {
   for (int i = 0; i < 2; ++i) {
     printf("--- River pass %i\n", i + 1);
     GEO_GEN_RouteFlow();
-    GEO_GEN_GenerateRivers(true);
+    GEO_GEN_GenerateRivers();
     GEO_GEN_CalculateHumidity();
   }
   GEO_GEN_UpdateSlope();
