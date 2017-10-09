@@ -56,11 +56,13 @@ void GEO_NewGeo(long int seed) {
   GEO_GEN_CalculateHumidity();
   printf("-- Generating rivers\n");
   for (int i = 0; i < 2; ++i) {
-    printf("--- River pass %i\n", i + 1);
+    printf("\r--- River pass %i", i + 1);
+    fflush(stdout);
     GEO_GEN_RouteFlow();
     GEO_GEN_GenerateRivers();
     GEO_GEN_CalculateHumidity();
   }
+  printf("\r");
   GEO_GEN_UpdateSlope();
 
   printf("-- Initialising map triangles\n");
@@ -117,9 +119,11 @@ void GEO_NewGeo(long int seed) {
   GEO_GEN_CalculateCity();
   printf("-- Placing cities\n");
   for (int i = MAX_CITY_COUNT; i > 0; --i) {
-    printf("--- Placing city %i\n", i + 1);
+    printf("\r--- Placing city %i", i);
+    fflush(stdout);
     GEO_GEN_PlaceCity();
   }
+  printf("\r");
 
   printf("- Creating new map - DONE\n");
 }
