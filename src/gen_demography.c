@@ -11,7 +11,8 @@
 void GEO_GEN_CalculateCity() {
   for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
     if (0 == i % ((MAP_SIZE * MAP_SIZE) / 100)) {
-      printf("%i%% finished.\n", i / ((MAP_SIZE * MAP_SIZE) / 100));
+      printf("\r%i%% finished.", i / ((MAP_SIZE * MAP_SIZE) / 100));
+      fflush(stdout);
     }
     Tile *tile = &geo->tiles[i];
     tile->city = 0;
@@ -34,6 +35,7 @@ void GEO_GEN_CalculateCity() {
       }
     }
   }
+  printf("\r");
 }
 
 void GEO_GEN_PlaceCity() {
