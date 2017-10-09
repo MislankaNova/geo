@@ -174,6 +174,11 @@ int CALLBACK WinMain(
     HINSTANCE hPrevInstance,
     LPSTR     lpCmdLine,
     int       nCmdShow) {  
+  // WinMain parameters are unused
+  (void)hInstance;
+  (void)hPrevInstance;
+  (void)lpCmdLine;
+  (void)nCmdShow;
   geo_main();
   return 0;
 }
