@@ -301,7 +301,7 @@ void GEO_GEN_GenerateMountain() {
           0.5 + (double)current->y / (MAP_SIZE * 3),
           0.5 + (double)current->x / (MAP_SIZE * 3)
       ) * 18.0)) % 6;
-      if (abs(direction - facing) > 1) {
+      if (abs((int)direction - (int)facing) > 1) {
         direction = facing;
       }
       for (int j = (rand() % 4) * (rand() % 2); j > 0; --j) {
