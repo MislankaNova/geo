@@ -18,6 +18,8 @@
 #include "algorithm.h"
 
 int geo_main(void) {
+  GEO_NewGeo(time(NULL));
+
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_Window *window;
@@ -41,7 +43,6 @@ int geo_main(void) {
 
   while (running) {
     bool alive = true;
-    GEO_NewGeo(time(NULL));
 
     SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0x04);
     View *view = GEO_NewView(renderer);
@@ -173,7 +174,7 @@ int CALLBACK WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR     lpCmdLine,
-    int       nCmdShow) {  
+    int       nCmdShow) {
   // WinMain parameters are unused
   (void)hInstance;
   (void)hPrevInstance;
