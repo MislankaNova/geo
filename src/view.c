@@ -641,7 +641,7 @@ void GEO_SaveImage(View *view, long int seed) {
       filename,
       255,
       "%0*lx-%s-%ix.bmp",
-      sizeof(long int) * 2, seed, mode_name, view->tile_size
+      (int)(sizeof(long int) * 2), seed, mode_name, view->tile_size
   );
   printf("- saving %s... ", filename);
   SDL_SaveBMP(view->draw_surface, filename);
