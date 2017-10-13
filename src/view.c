@@ -15,6 +15,10 @@ static inline int min3(int x, int y, int z) {
 }
 
 void _VIEW_InitialiseSurface(View *view) {
+  if (view->draw_surface) {
+    SDL_FreeSurface(view->draw_surface);
+    view->draw_surface = NULL;
+  }
   view->draw_surface = SDL_CreateRGBSurface(
       0,
       (MAP_SIZE + 1) * view->tile_size,
@@ -158,12 +162,15 @@ View *GEO_NewView(SDL_Renderer *renderer) {
   view->centre_y = 0;
   view->tile_size = 4;
   view->map_texture = NULL;
+  view->draw_surface = NULL;
   GEO_UpdateView(view);
   return view;
 }
 
 void GEO_DestroyView(View *view) {
-  SDL_FreeSurface(view->draw_surface);
+  if (view->draw_surface) {
+    SDL_FreeSurface(view->draw_surface);
+  }
   free(view);
 }
 
@@ -627,7 +634,6 @@ void GEO_UpdateView(View *view) {
       view->renderer,
       view->draw_surface
   );
-  SDL_FreeSurface(view->draw_surface);
   view->draw_surface = NULL;
 }
 
