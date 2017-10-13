@@ -75,6 +75,9 @@ int geo_main(void) {
               );
               GEO_UpdateView(view);
               break;
+            case SDL_SCANCODE_S:
+              GEO_SaveImage(view);
+              break;
             case SDL_SCANCODE_SPACE:
               alive = false;
               break;

@@ -7,6 +7,16 @@
 #include "view.h"
 #include "geo.h"
 
+const char* const _VIEW_MODE_NAMES[] = {
+  "elevation", 
+  "smooth-elevation",
+  "humidity",
+  "slope",
+  "life",
+  "city",
+  "distance"
+};
+
 static inline int max3(int x, int y, int z) {
   return x > y ? (x > z ? x : z) : (y > z ? y : z);
 }
@@ -241,9 +251,6 @@ void GEO_UpdateViewSlope(View *view) {
     }
     SDL_FillRect(view->draw_surface, &r, colour);
   }
-  if (view->tile_size < 10) {
-    SDL_SaveBMP(view->draw_surface, "slope.bmp");
-  }
 }
 
 void GEO_UpdateViewHumidity(View *view) {
@@ -267,9 +274,6 @@ void GEO_UpdateViewHumidity(View *view) {
     }
     SDL_FillRect(view->draw_surface, &r, colour);
   }
-  if (view->tile_size < 10) {
-    SDL_SaveBMP(view->draw_surface, "humidity.bmp");
-  }
 }
 
 void GEO_UpdateViewLife(View *view) {
@@ -291,9 +295,6 @@ void GEO_UpdateViewLife(View *view) {
     }
     SDL_FillRect(view->draw_surface, &r, colour);
   }
-  if (view->tile_size < 10) {
-    SDL_SaveBMP(view->draw_surface, "humidity.bmp");
-  }
 }
 
 void GEO_UpdateViewCity(View *view) {
@@ -314,9 +315,6 @@ void GEO_UpdateViewCity(View *view) {
       r.x += view->tile_size / 2;
     }
     SDL_FillRect(view->draw_surface, &r, colour);
-  }
-  if (view->tile_size < 10) {
-    SDL_SaveBMP(view->draw_surface, "humidity.bmp");
   }
 }
 
@@ -476,9 +474,6 @@ void GEO_UpdateViewTrig(View *view) {
       }
     }
   }
-  if (view->tile_size < 10) {
-    SDL_SaveBMP(view->draw_surface, "trig.bmp");
-  }
   SDL_DestroyRenderer(sr);
 }
 
@@ -550,9 +545,6 @@ void GEO_UpdateViewElevation(View *view) {
         }
       }
     }
-  }
-  if (view->tile_size < 10) {
-    SDL_SaveBMP(view->draw_surface, "elevation.bmp");
   }
   SDL_DestroyRenderer(sr);
 }
@@ -634,5 +626,23 @@ void GEO_UpdateView(View *view) {
       view->renderer,
       view->draw_surface
   );
+}
+
+void GEO_SaveImage(View *view) {
+  if (!view->draw_surface) {
+    return;
+  } else if (view->tile_size > 10) {
+    printf("* Tile size is too large.\n");
+    return;
+  }
+  char *filename = calloc(1, 255);
+  char const *mode_name = _VIEW_MODE_NAMES[view->mode];
+  snprintf(
+      filename,
+      255,
+      "%s.bmp", mode_name
+  );
+  SDL_SaveBMP(view->draw_surface, filename);
+  free(filename);
 }
 

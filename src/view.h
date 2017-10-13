@@ -33,5 +33,6 @@ void GEO_DestroyView(View *view);
 
 void GEO_DrawView(View *view);
 void GEO_UpdateView(View *view);
+void GEO_SaveImage(View *view);
 
 #endif
