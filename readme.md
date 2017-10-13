@@ -1,3 +1,5 @@
+![Example Output](/example.png)
+
 # geo: A Simple Procedural Terrain Generator
 
 *geo* is a procedural terrain generator written in C.
@@ -9,6 +11,7 @@ Use arrow keys to move the map.
 Use square bracket keys to zoom in and out.
 Use Page Up and Page Down to change map display mode.
 Press Spacebar to generate a new map.
+Press S to save the current map image.
 
 There are seven display modes:
 
