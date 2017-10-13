@@ -628,11 +628,11 @@ void GEO_UpdateView(View *view) {
   );
 }
 
-void GEO_SaveImage(View *view) {
+void GEO_SaveImage(View *view, long int seed) {
   if (!view->draw_surface) {
     return;
   } else if (view->tile_size > 10) {
-    printf("* Tile size is too large.\n");
+    printf("* Tile size is too large\n");
     return;
   }
   char *filename = calloc(1, 255);
@@ -640,9 +640,12 @@ void GEO_SaveImage(View *view) {
   snprintf(
       filename,
       255,
-      "%s.bmp", mode_name
+      "%0*lx-%s-%ix.bmp",
+      sizeof(long int) * 2, seed, mode_name, view->tile_size
   );
+  printf("- saving %s... ", filename);
   SDL_SaveBMP(view->draw_surface, filename);
+  printf("saved\n");
   free(filename);
 }
 
