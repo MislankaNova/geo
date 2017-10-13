@@ -634,6 +634,5 @@ void GEO_UpdateView(View *view) {
       view->renderer,
       view->draw_surface
   );
-  view->draw_surface = NULL;
 }
 
