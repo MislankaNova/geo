@@ -81,23 +81,31 @@ void GEO_GEN_WalkRivers() {
     Tile *down = tile->adj[tile->down];
     if (tile->flow > RIVER_THRESHOLD) {
       RiverNode *river = malloc(sizeof(RiverNode));
-      RiverNode *next = malloc(sizeof(RiverNode));
+      RiverNode *mid = malloc(sizeof(RiverNode));
+      RiverNode *last = malloc(sizeof(RiverNode));
       river->x = (double)tile->x;
       river->y = (double)tile->y;
       river->flow = tile->flow;
       river->elevation = tile->elevation;
-      river->next = next;
-      next->x = (double)down->x;
-      next->y = (double)down->y;
-      next->flow = down->flow;
-      next->elevation = down->elevation;
-      next->next = NULL;
+      river->next = mid;
+      last->x = (double)down->x;
+      last->y = (double)down->y;
+      last->flow = down->flow;
+      last->elevation = down->elevation;
+      last->next = NULL;
       if (tile->y & 1) {
         river->x += 0.5;
       }
       if (down->y & 1) {
-        next->x += 0.5;
+        last->x += 0.5;
       }
+      mid->x = (river->x + last->x) / 2.0;
+      mid->y = (river->y + last->y) / 2.0;
+      mid->x += 0.25 - ((double)rand() / (double)RAND_MAX) * 0.5;
+      mid->y += 0.25 - ((double)rand() / (double)RAND_MAX) * 0.5;
+      mid->flow = (river->flow + last->flow) / 2;
+      mid->elevation = (river->elevation + last->elevation) / 2;
+      mid->next = last;
       tile->river = river;
     }
   }
