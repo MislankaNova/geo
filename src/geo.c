@@ -35,8 +35,6 @@ void GEO_NewGeo(long int seed) {
       tile->adj[SW] = TILE(y + 1, x - 1 + dx);
     }
   }
-  geo->tile_distances =
-    calloc(MAP_SIZE * MAP_SIZE, sizeof(int));
   geo->trig_distances =
     calloc(2 * (MAP_SIZE - 1) * (MAP_SIZE - 1), sizeof(int));
 
@@ -132,7 +130,6 @@ void GEO_NewGeo(long int seed) {
 void GEO_DestroyGeo() {
   free(geo->tiles);
   free(geo->trigs);
-  free(geo->tile_distances);
   free(geo->trig_distances);
   free(geo);
   geo = NULL;

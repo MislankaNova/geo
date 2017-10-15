@@ -70,7 +70,7 @@ typedef struct Geo {
   long int seed;
   Tile *tiles;
   Trig *trigs;
-  int *tile_distances;
+  int tile_distances[MAP_SIZE * MAP_SIZE];
   int *trig_distances;
 } Geo;
 
