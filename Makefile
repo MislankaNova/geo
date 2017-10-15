@@ -13,7 +13,7 @@ geo: main.o view.o geo.o gen_elevation.o gen_climate.o gen_river.o gen_demograph
 
 view.o: view.h
 
-geo.o: gen_elevation.o gen_climate.o gen_river.o gen_demography.o alg_path.o
+geo.o: geo.h gen_elevation.o gen_climate.o gen_river.o gen_demography.o alg_path.o
 
 gen_elevation.o: noise.o gen.h gen_elevation.c
 
