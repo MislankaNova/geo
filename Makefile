@@ -9,11 +9,12 @@ LDLIBS = -lm -lSDL2
 
 all: geo
 
-geo: main.o view.o geo.o gen_elevation.o gen_climate.o gen_river.o gen_demography.o alg_path.o noise.o open-simplex-noise.o
+geo: main.o view.o geo.o alg_path.o
+	$(CC) *.o $(CFLAGS) $(LDLIBS) -o geo
 
-view.o: view.h
+view.o: view.h geo.o
 
-geo.o: geo.h gen_elevation.o gen_climate.o gen_river.o gen_demography.o alg_path.o
+geo.o: geo.h gen_elevation.o gen_climate.o gen_river.o gen_demography.o
 
 gen_elevation.o: noise.o gen.h gen_elevation.c
 
@@ -21,7 +22,7 @@ gen_climate.o: gen.h gen_climate.c
 
 gen_river.o: gen.h gen_river.c
 
-gen_demography.o: gen.h gen_demography.c
+gen_demography.o: gen.h gen_demography.c alg_path.o
 
 alg_path.o: algorithm.h alg_path.c
 
