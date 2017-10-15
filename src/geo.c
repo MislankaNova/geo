@@ -61,7 +61,8 @@ void GEO_NewGeo(long int seed) {
     GEO_GEN_GenerateRivers();
     GEO_GEN_CalculateHumidity();
   }
-  printf("\r");
+  printf("\r-- Generating river courses\n");
+  GEO_GEN_WalkRivers();
   GEO_GEN_UpdateSlope();
 
   printf("-- Initialising map triangles\n");

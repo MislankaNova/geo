@@ -75,3 +75,23 @@ void GEO_GEN_GenerateRivers() {
   }
 }
 
+void GEO_GEN_WalkRivers() {
+  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+    Tile *tile = &geo->tiles[i];
+    Tile *down = tile->adj[tile->down];
+    if (tile->flow > RIVER_THRESHOLD) {
+      RiverNode *river = malloc(sizeof(RiverNode));
+      RiverNode *next = malloc(sizeof(RiverNode));
+      river->x = (double)tile->x;
+      river->y = (double)tile->y;
+      river->flow = tile->flow;
+      river->elevation = tile->elevation;
+      river->next = next;
+      next->x = (double)down->x;
+      next->y = (double)down->y;
+      next->flow = down->flow;
+      next->elevation = down->elevation;
+      next->next = NULL;
+    }
+  }
+}

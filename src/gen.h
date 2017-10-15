@@ -26,6 +26,8 @@ void GEO_GEN_CalculateHumidity();
 
 void GEO_GEN_GenerateRivers();
 
+void GEO_GEN_WalkRivers();
+
 void GEO_GEN_GenerateLakes();
 
 void GEO_GEN_CalculateLife();
