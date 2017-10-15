@@ -162,6 +162,53 @@ void _VIEW_DrawCities(View *view) {
   SDL_DestroyRenderer(sr);
 }
 
+void _VIEW_DrawRivers(View *view) {
+  SDL_Renderer *sr = SDL_CreateSoftwareRenderer(view->draw_surface);
+  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+    Tile *tile = &geo->tiles[i];
+    if (tile->river) {
+      RiverNode *current = tile->river;
+      RiverNode *next = current->next;
+      while (next) {
+        double y1 = current->y;
+        double x1 = current->x;
+        double y2 = next->y;
+        double x2 = next->x;
+        y1 = y1 * (view->tile_size) + (view->tile_size / 2);
+        x1 = x1 * (view->tile_size) + (view->tile_size / 2);
+        y2 = y2 * (view->tile_size) + (view->tile_size / 2);
+        x2 = x2 * (view->tile_size) + (view->tile_size / 2);
+        int d0 = current->flow / 5000;
+        int d1 = (current->flow - 2500) / 5000;
+        int t0;
+        int t1;
+        if (view->tile_size / 8 > d1) {
+          t0 = d0;
+          t1 = d1;
+        } else {
+          t0 = view->tile_size / 8;
+          t1 = view->tile_size / 8;
+        }
+        SDL_SetRenderDrawColor(sr, 0, 0, 0xA0, 0xFF);
+        for (int j = -t0; j <= t1; ++j) {
+          for (int k = -t0; k <= t1; ++k) {
+            SDL_RenderDrawLine(
+                sr,
+                (int)x1 + j,
+                (int)y1 + k,
+                (int)x2 + j,
+                (int)y2 + k
+            );
+          }
+        }
+        current = next;
+        next = next->next;
+      }
+    }
+  }
+  SDL_DestroyRenderer(sr);
+}
+
 View *GEO_NewView(SDL_Renderer *renderer) {
   View *view = malloc(sizeof(View));
   view->mode = GEO_VIEW_MODE_ELEVATION;
@@ -432,48 +479,6 @@ void GEO_UpdateViewTrig(View *view) {
       }
     }
   }
-  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
-    Tile *tile = &geo->tiles[i];
-    if (tile->flow > RIVER_THRESHOLD) {
-      int y1 = tile->y;
-      int x1 = tile->x;
-      int y2 = tile->adj[tile->down]->y;
-      int x2 = tile->adj[tile->down]->x;
-      y1 = y1 * (view->tile_size) + (view->tile_size / 2);
-      x1 = x1 * (view->tile_size) + (view->tile_size / 2);
-      y2 = y2 * (view->tile_size) + (view->tile_size / 2);
-      x2 = x2 * (view->tile_size) + (view->tile_size / 2);
-      if (tile->y & 1) {
-        x1 += (view->tile_size / 2);
-      }
-      if (tile->adj[tile->down]->y & 1) {
-        x2 += (view->tile_size / 2);
-      }
-      int d0 = tile->flow / 5000;
-      int d1 = (tile->flow - 2500) / 5000;
-      int t0;
-      int t1;
-      if (view->tile_size / 8 > d1) {
-        t0 = d0;
-        t1 = d1;
-      } else {
-        t0 = view->tile_size / 8;
-        t1 = view->tile_size / 8;
-      }
-      SDL_SetRenderDrawColor(sr, 0, 0, 0xA0, 0xFF);
-      for (int j = -t0; j <= t1; ++j) {
-        for (int k = -t0; k <= t1; ++k) {
-          SDL_RenderDrawLine(
-              sr,
-              x1 + j,
-              y1 + k,
-              x2 + j,
-              y2 + k
-          );
-        }
-      }
-    }
-  }
   SDL_DestroyRenderer(sr);
 }
 
@@ -502,48 +507,6 @@ void GEO_UpdateViewElevation(View *view) {
           0xFF
       );
       SDL_RenderFillRect(sr, &r);
-    }
-  }
-  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
-    Tile *tile = &geo->tiles[i];
-    if (tile->flow > RIVER_THRESHOLD) {
-      int y1 = tile->y;
-      int x1 = tile->x;
-      int y2 = tile->adj[tile->down]->y;
-      int x2 = tile->adj[tile->down]->x;
-      y1 = y1 * (view->tile_size) + (view->tile_size / 2);
-      x1 = x1 * (view->tile_size) + (view->tile_size / 2);
-      y2 = y2 * (view->tile_size) + (view->tile_size / 2);
-      x2 = x2 * (view->tile_size) + (view->tile_size / 2);
-      if (tile->y & 1) {
-        x1 += (view->tile_size / 2);
-      }
-      if (tile->adj[tile->down]->y & 1) {
-        x2 += (view->tile_size / 2);
-      }
-      int d0 = tile->flow / 5000;
-      int d1 = (tile->flow - 2500) / 5000;
-      int t0;
-      int t1;
-      if (view->tile_size / 8 > d1) {
-        t0 = d0;
-        t1 = d1;
-      } else {
-        t0 = view->tile_size / 8;
-        t1 = view->tile_size / 8;
-      }
-      SDL_SetRenderDrawColor(sr, 0, 0, 0xA0, 0xFF);
-      for (int j = -t0; j <= t1; ++j) {
-        for (int k = -t0; k <= t1; ++k) {
-          SDL_RenderDrawLine(
-              sr,
-              x1 + j,
-              y1 + k,
-              x2 + j,
-              y2 + k
-          );
-        }
-      }
     }
   }
   SDL_DestroyRenderer(sr);
@@ -598,10 +561,12 @@ void GEO_UpdateView(View *view) {
   switch (view->mode) {
     case GEO_VIEW_MODE_ELEVATION:
       GEO_UpdateViewElevation(view);
+      _VIEW_DrawRivers(view);
       _VIEW_DrawCities(view);
       break;
     case GEO_VIEW_MODE_TRIG:
       GEO_UpdateViewTrig(view);
+      _VIEW_DrawRivers(view);
       _VIEW_DrawCities(view);
       break;
     case GEO_VIEW_MODE_HUMIDITY:
