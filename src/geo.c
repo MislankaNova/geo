@@ -26,6 +26,7 @@ void GEO_NewGeo(long int seed) {
       tile->humidity = 0;
       tile->flow = 0;
       tile->down = 0;
+      tile->river = NULL;
       int dx = y & 1 ? 1 : 0;
       tile->adj[W]  = TILE(y    , x - 1);
       tile->adj[NW] = TILE(y - 1, x - 1 + dx);
@@ -128,6 +129,14 @@ void GEO_NewGeo(long int seed) {
 }
 
 void GEO_DestroyGeo() {
+  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+    RiverNode *current = geo->tiles[i].river;
+    while (current) {
+      RiverNode *next = current->next;
+      free(current);
+      current = next;
+    }
+  }
   free(geo->tiles);
   free(geo->trigs);
   free(geo->trig_distances);

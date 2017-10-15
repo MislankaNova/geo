@@ -46,6 +46,14 @@ typedef enum VertexPosition {
   VERT_RIGHT
 } VertexPosition;
 
+typedef struct RiverNode {
+  double y;
+  double x;
+  int elevation;
+  int flow;
+  struct RiverNode *next;
+} RiverNode;
+
 typedef struct Tile {
   int id;
   TileType type;
@@ -58,6 +66,7 @@ typedef struct Tile {
   int city;
   int flow;
   Direction down;
+  RiverNode *river;
   struct Tile *adj[6];
 } Tile;
 
