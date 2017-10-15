@@ -4,6 +4,15 @@
 #include <limits.h>
 
 #include "geo.h"
+#include "algorithm.h"
+
+const DistanceParameters DEFAULT_DISTANCE_PARAMTERS = {
+  0,
+  5,
+  8,
+  12,
+  2.4
+};
 
 void _ALG_ResetTileDistances(int (*dest)[MAP_SIZE * MAP_SIZE]) {
   for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
