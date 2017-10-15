@@ -92,6 +92,12 @@ void GEO_GEN_WalkRivers() {
       next->flow = down->flow;
       next->elevation = down->elevation;
       next->next = NULL;
+      if (tile->y & 1) {
+        river->x += 0.5;
+      }
+      if (down->y & 1) {
+        next->x += 0.5;
+      }
       tile->river = river;
     }
   }
