@@ -6,7 +6,7 @@
 #include "geo.h"
 #include "algorithm.h"
 
-const DistanceParameters DEFAULT_DISTANCE_PARAMTERS = {
+const DistanceParameters DEFAULT_DISTANCE_PARAMETERS = {
   0,
   5,
   8,
@@ -22,6 +22,7 @@ void _ALG_ResetTileDistances(int (*dest)[MAP_SIZE * MAP_SIZE]) {
 
 void _ALG_SetTileDistance(
     int (*dest)[MAP_SIZE * MAP_SIZE],
+    const DistanceParameters *parameters,
     Tile *tile,
     int limit,
     int distance) {
@@ -30,10 +31,17 @@ void _ALG_SetTileDistance(
     return;
   }
   (*dest)[tile->y * MAP_SIZE + tile->x] = distance;
+  distance += parameters->any;
   for (size_t j = 0; j < 6; ++j) {
     if (tile->adj[j]) {
       if (tile->elevation < 0 || tile->adj[j]->elevation < 0) {
-        _ALG_SetTileDistance(dest, tile->adj[j], limit, distance + 5);
+        _ALG_SetTileDistance(
+            dest,
+            parameters,
+            tile->adj[j],
+            limit,
+            distance + parameters->ocean
+        );
       } else if ((j == tile->down
               && tile->elevation - tile->adj[j]->elevation < 16
               && tile->adj[j]->flow > RIVER_THRESHOLD
@@ -41,15 +49,27 @@ void _ALG_SetTileDistance(
               && tile->adj[j]->elevation - tile->elevation < 16
               && tile->flow > RIVER_THRESHOLD
           )) {
-        _ALG_SetTileDistance(dest, tile->adj[j], limit, distance + 8);
+        _ALG_SetTileDistance(
+            dest,
+            parameters,
+            tile->adj[j],
+            limit,
+            distance + parameters->river
+        );
       } else {
         int r = tile->adj[j]->slope;
         r = log(r);
         if (r < 0) {
           r = 0;
         }
-        r = pow(r, 2.4);
-        _ALG_SetTileDistance(dest, tile->adj[j], limit, distance + r + 12);
+        r = pow(r, parameters->slope_factor);
+        _ALG_SetTileDistance(
+            dest,
+            parameters,
+            tile->adj[j],
+            limit,
+            distance + r + parameters->land
+        );
       }
     }
   }
@@ -65,10 +85,14 @@ void _ALG_SetTrigDistance(Trig *trig, int limit, int distance) {
 }
 
 void GEO_ALG_CalculateTileDistance(
+    const DistanceParameters *parameters,
     Tile *tile,
     int limit,
     int (*dest)[MAP_SIZE * MAP_SIZE]) {
+  if (!parameters) {
+    parameters = &DEFAULT_DISTANCE_PARAMETERS;
+  }
   _ALG_ResetTileDistances(dest);
-  _ALG_SetTileDistance(dest, tile, limit, 0);
+  _ALG_SetTileDistance(dest, parameters, tile, limit, 0);
 }
 

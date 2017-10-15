@@ -70,6 +70,7 @@ int geo_main(void) {
           switch(event.key.keysym.scancode) {
             case SDL_SCANCODE_Z:
               GEO_ALG_CalculateTileDistance(
+                  NULL,
                   TILE(view->centre_y, view->centre_x),
                   8000,
                   &geo->tile_distances
@@ -86,6 +87,7 @@ int geo_main(void) {
               view->mode = (view->mode + 1) % 7;
               if (GEO_VIEW_MODE_DISTANCE == view->mode) {
                 GEO_ALG_CalculateTileDistance(
+                    NULL,
                     TILE(view->centre_y, view->centre_x),
                     8000,
                     &geo->tile_distances
@@ -97,6 +99,7 @@ int geo_main(void) {
               view->mode = (view->mode + 6) % 7;
               if (GEO_VIEW_MODE_DISTANCE == view->mode) {
                 GEO_ALG_CalculateTileDistance(
+                    NULL,
                     TILE(view->centre_y, view->centre_x),
                     8000,
                     &geo->tile_distances
