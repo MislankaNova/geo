@@ -1,13 +1,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #include "geo.h"
 
 void _ALG_ResetTileDistances() {
   for (int y = 0; y < MAP_SIZE; ++y) {
     for (int x = 0; x < MAP_SIZE; ++x) {
-      GEO_SetTileDistance(y, x, 0x0FFFFFFF);
+      GEO_SetTileDistance(y, x, INT_MAX);
     }
   }
 }
