@@ -17,7 +17,7 @@ void GEO_GEN_CalculateCity() {
     Tile *tile = &geo->tiles[i];
     tile->city = 0;
     if (tile->life > 6) {
-      GEO_ALG_CalculateTileDistance(tile, 240);
+      GEO_ALG_CalculateTileDistance(tile, 240, &geo->tile_distances);
       for (int k = 0; k < MAP_SIZE * MAP_SIZE; ++k) {
         if (geo->tile_distances[k] < 240) {
           tile->city +=
@@ -55,7 +55,7 @@ void GEO_GEN_PlaceCity() {
   }
   place->city = mc;
   for (int j = 0; j < 3; ++j) {
-    GEO_ALG_CalculateTileDistance(place->vertices[j], 480);
+    GEO_ALG_CalculateTileDistance(place->vertices[j], 480, &geo->tile_distances);
     for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
       if (geo->tile_distances[i] < 480) {
         geo->tiles[i].city -= ((480 - geo->tile_distances[i])
