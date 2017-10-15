@@ -16,6 +16,12 @@
 
 #define RIVER_THRESHOLD 320
 
+#ifdef __WIN32
+#define THREAD_COUNT 0
+#else
+#define THREAD_COUNT 8
+#endif
+
 typedef enum Direction {
   W,
   NW,

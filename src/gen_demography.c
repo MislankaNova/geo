@@ -8,7 +8,7 @@
 #include "gen.h"
 #include "algorithm.h"
 
-void GEO_GEN_CalculateCity() {
+void _GEN_CalculateCitySingleThread() {
   for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
     if (0 == i % ((MAP_SIZE * MAP_SIZE) / 100)) {
       printf("\r%i%% finished.", i / ((MAP_SIZE * MAP_SIZE) / 100));
@@ -36,6 +36,27 @@ void GEO_GEN_CalculateCity() {
     }
   }
   printf("\r");
+}
+
+#ifndef __WIN32
+void _GEN_CalculateCityMultiThread(int thread_count) {
+  // Dummy
+  (void)thread_count;
+  _GEN_CalculateCitySingleThread();
+}
+#endif
+
+void GEO_GEN_CalculateCity(int thread_count) {
+#ifdef __WIN32
+  (void)thread_count;
+  _GEN_CalculateCitySingleThread();
+#else
+  if (thread_count > 0) {
+    _GEN_CalculateCityMultiThread(thread_count);
+  } else {
+    _GEN_CalculateCitySingleThread();
+  }
+#endif
 }
 
 void GEO_GEN_PlaceCity() {

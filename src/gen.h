@@ -30,7 +30,7 @@ void GEO_GEN_GenerateLakes();
 
 void GEO_GEN_CalculateLife();
 
-void GEO_GEN_CalculateCity();
+void GEO_GEN_CalculateCity(int thread_count);
 
 void GEO_GEN_PlaceCity();
 

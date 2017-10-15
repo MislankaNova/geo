@@ -114,7 +114,7 @@ void GEO_NewGeo(long int seed) {
   printf("-- Calculating life rating\n");
   GEO_GEN_CalculateLife();
   printf("-- Calculating city rating\n");
-  GEO_GEN_CalculateCity();
+  GEO_GEN_CalculateCity(THREAD_COUNT);
   printf("-- Placing cities\n");
   int count_width = (int)ceil(log10(MAX_CITY_COUNT));
   for (int i = 1; i <= MAX_CITY_COUNT; ++i) {
