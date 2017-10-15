@@ -3,7 +3,7 @@ VPATH  = src
 CC     = gcc
 CFLAGS = -xc -std=c11 -W -Wall -Wextra -Werror -pedantic -Iopen-simplex-noise-in-c
 
-LDLIBS = -lm -lSDL2
+LDLIBS = -lm -lSDL2 -lpthread
 
 .PHONY: all clean object
 

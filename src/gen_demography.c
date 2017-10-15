@@ -2,6 +2,10 @@
 #include <math.h>
 #include <stdbool.h>
 
+#ifndef __WIN32
+#include <pthread.h>
+#endif
+
 #include <stdio.h>
 
 #include "geo.h"
@@ -39,11 +43,67 @@ void _GEN_CalculateCitySingleThread() {
 }
 
 #ifndef __WIN32
-void _GEN_CalculateCityMultiThread(int thread_count) {
-  // Dummy
-  (void)thread_count;
-  _GEN_CalculateCitySingleThread();
+
+typedef struct Slice {
+  size_t start;
+  size_t end;
+} Slice;
+
+void *_GEN_CalculateCityInSlice(void *arg) {
+  Slice *slice = arg;
+  int distances[MAP_SIZE * MAP_SIZE];
+  for (size_t i = slice->start; i < slice->end; ++i) {
+    Tile *tile = &geo->tiles[i];
+    tile->city = 0;
+    if (tile->life > 6) {
+      GEO_ALG_CalculateTileDistance(tile, 240, &distances);
+      for (int k = 0; k < MAP_SIZE * MAP_SIZE; ++k) {
+        if (distances[k] < 240) {
+          tile->city +=
+            (geo->tiles[k].life * (240 - distances[k])) / 240;
+        }
+      }
+      if (tile->flow > RIVER_THRESHOLD) {
+        tile->city = (tile->city * 21) / 20;
+      }
+      for (int j = 0; j < 6; ++j) {
+        if (tile->adj[j] && tile->adj[j]->elevation < 0) {
+          tile->city = (tile->city * 20) / 20;
+          break;
+        }
+      }
+    }
+  }
+  return NULL;
 }
+
+void _GEN_CalculateCityMultiThread(int thread_count) {
+  pthread_t threads[thread_count];
+  Slice slices[thread_count];
+  int step = (MAP_SIZE * MAP_SIZE) / thread_count;
+  for (int i = 0; i < thread_count - 1; ++i) {
+    slices[i].start = (size_t)(i * step);
+    slices[i].end = (size_t)((i + 1) * step);
+    pthread_create(
+        &threads[i],
+        NULL,
+        _GEN_CalculateCityInSlice,
+        &slices[i]
+    );
+  }
+  slices[thread_count - 1].start = (size_t)((thread_count - 1) * step);
+  slices[thread_count - 1].end = MAP_SIZE * MAP_SIZE;
+  pthread_create(
+      &threads[thread_count - 1],
+      NULL,
+      _GEN_CalculateCityInSlice,
+      &slices[thread_count - 1]
+  );
+  for (int i = 0; i < thread_count; ++i) {
+    pthread_join(threads[i], NULL);
+  }
+}
+
 #endif
 
 void GEO_GEN_CalculateCity(int thread_count) {
