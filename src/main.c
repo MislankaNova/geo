@@ -61,7 +61,10 @@ int geo_main(void) {
 
       SDL_Event event;
       while (SDL_PollEvent(&event)) {
-        if (SDL_WINDOWEVENT == event.type) {
+        if (SDL_QUIT == event.type) {
+          alive = false;
+          running = false;
+        } else if (SDL_WINDOWEVENT == event.type) {
           if (SDL_WINDOWEVENT_CLOSE == event.window.event) {
             alive = false;
             running = false;
