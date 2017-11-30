@@ -33,6 +33,12 @@ int geo_main(void) {
     600,
     SDL_WINDOW_OPENGL
   );
+
+  if (window == NULL) {
+    printf("Could not create window: %s\n", SDL_GetError());
+    return EXIT_FAILURE;
+  }
+
   renderer = SDL_CreateRenderer(
     window,
     -1,
@@ -45,11 +51,6 @@ int geo_main(void) {
 
     SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0x04);
     View *view = GEO_NewView(renderer);
-
-    if (window == NULL) {
-      printf("Could not create window: %s\n", SDL_GetError());
-      return EXIT_FAILURE;
-    }
 
     while (alive) {
       SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0xFF);
