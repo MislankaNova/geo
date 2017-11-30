@@ -45,6 +45,11 @@ int geo_main(void) {
     SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED
   );
 
+  if (renderer == NULL) {
+    printf("Could not create renderer: %s\n", SDL_GetError());
+    return EXIT_FAILURE;
+  }
+
   while (running) {
     bool alive = true;
     GEO_NewGeo(time(NULL));
