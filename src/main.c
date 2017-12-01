@@ -71,11 +71,13 @@ int geo_main(void) {
 
   SDL_Thread *worker = NULL;
   worker_data_t worker_data = {renderer, NULL};
+  bool work_initiated = false;
 
   while (running) {
     bool alive = true;
-    if (!worker_working) {
+    if (!work_initiated) {
       // worker not working, start new work
+      work_initiated = true;
       worker = SDL_CreateThread(init_work, "Worker", &worker_data);
     }
 
@@ -216,6 +218,7 @@ int geo_main(void) {
 
     GEO_DestroyGeo();
     GEO_DestroyView(view);
+    work_initiated = false;
   }
 
   SDL_DestroyRenderer(renderer);
