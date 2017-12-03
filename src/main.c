@@ -98,6 +98,7 @@ int geo_main(void) {
 
     // work has finished
     View *view = (View *) worker_data.view;
+    GEO_UpdateView(view);
     // release thread resources
     SDL_WaitThread(worker, NULL);
     worker = NULL;
