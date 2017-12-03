@@ -30,7 +30,6 @@ static int init_work(void *worker_data_) {
   SDL_Renderer *renderer = worker_data->renderer;
   GEO_NewGeo(time(NULL));
 
-  SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0x04);
   worker_data->view = GEO_NewView(renderer);
   worker_working = false;
   return 0;
@@ -72,6 +71,11 @@ int geo_main(void) {
   SDL_Thread *worker = NULL;
   worker_data_t worker_data = {renderer, NULL};
   bool work_initiated = false;
+ 
+  // Ser the window background before running 
+  SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0x04);
+  SDL_RenderClear(renderer);
+  SDL_RenderPresent(renderer);
 
   while (running) {
     bool alive = true;
