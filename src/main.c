@@ -17,6 +17,25 @@
 #include "view.h"
 #include "algorithm.h"
 
+static volatile bool worker_working;
+
+typedef struct {
+  SDL_Renderer *renderer;
+  volatile View *view;
+} worker_data_t;
+
+static int init_work(void *worker_data_) {
+  worker_working = true;
+  worker_data_t *worker_data = (worker_data_t *) worker_data_;
+  SDL_Renderer *renderer = worker_data->renderer;
+  GEO_NewGeo(time(NULL));
+
+  SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0x04);
+  worker_data->view = GEO_NewView(renderer);
+  worker_working = false;
+  return 0;
+}
+
 int geo_main(void) {
   SDL_Init(SDL_INIT_VIDEO);
 
@@ -33,23 +52,51 @@ int geo_main(void) {
     600,
     SDL_WINDOW_OPENGL
   );
+
+  if (window == NULL) {
+    printf("Could not create window: %s\n", SDL_GetError());
+    return EXIT_FAILURE;
+  }
+
   renderer = SDL_CreateRenderer(
     window,
     -1,
     SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED
   );
 
+  if (renderer == NULL) {
+    printf("Could not create renderer: %s\n", SDL_GetError());
+    return EXIT_FAILURE;
+  }
+
+  SDL_Thread *worker = NULL;
+  worker_data_t worker_data = {renderer, NULL};
+  bool work_initiated = false;
+
   while (running) {
     bool alive = true;
-    GEO_NewGeo(time(NULL));
-
-    SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0x04);
-    View *view = GEO_NewView(renderer);
-
-    if (window == NULL) {
-      printf("Could not create window: %s\n", SDL_GetError());
-      return EXIT_FAILURE;
+    if (!work_initiated) {
+      // worker not working, start new work
+      work_initiated = true;
+      worker = SDL_CreateThread(init_work, "Worker", &worker_data);
     }
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+      // check for quit event only
+      if (SDL_QUIT == event.type) {
+        running = false;
+      }
+    }
+
+    // if work has not finished, loop
+    if (worker_working) continue;
+
+    // work has finished
+    View *view = (View *) worker_data.view;
+    // release thread resources
+    SDL_WaitThread(worker, NULL);
+    worker = NULL;
 
     while (alive) {
       SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0xFF);
@@ -171,6 +218,7 @@ int geo_main(void) {
 
     GEO_DestroyGeo();
     GEO_DestroyView(view);
+    work_initiated = false;
   }
 
   SDL_DestroyRenderer(renderer);
