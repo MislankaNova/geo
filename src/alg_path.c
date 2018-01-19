@@ -75,15 +75,6 @@ void _ALG_SetTileDistance(
   }
 }
 
-void _ALG_SetTrigDistance(Trig *trig, int limit, int distance) {
-  if (distance > limit || distance >= GEO_GetTrigDistance(trig->y, trig->x)) {
-    return;
-  }
-  GEO_SetTrigDistance(trig->y, trig->x, distance);
-  for (int j = 0; j < 6; ++j) {
-  }
-}
-
 void GEO_ALG_CalculateTileDistance(
     const DistanceParameters *parameters,
     Tile *tile,

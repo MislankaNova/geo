@@ -98,7 +98,5 @@ Tile *GEO_GetTile(int y, int x);
 Trig *GEO_GetTrig(int y, int x);
 int GEO_GetTileDistance(int y, int x);
 void GEO_SetTileDistance(int y, int x, int d);
-int GEO_GetTrigDistance(int y, int x);
-void GEO_SetTrigDistance(int y, int x, int d);
 
 #endif

@@ -173,17 +173,3 @@ void GEO_SetTileDistance(int y, int x, int d) {
   geo->tile_distances[MAP_SIZE * y + x] = d;
 }
 
-int GEO_GetTrigDistance(int y, int x) {
-  if (y < 0 || x < 0 || y >= MAP_SIZE - 1 || x >= (MAP_SIZE - 1) * 2) {
-    return -1;
-  }
-  return geo->trig_distances[(MAP_SIZE - 1) * 2 * y + x];
-}
-
-void GEO_SetTrigDistance(int y, int x, int d) {
-  if (y < 0 || x < 0 || y >= MAP_SIZE - 1 || x >= (MAP_SIZE - 1) * 2) {
-    return;
-  }
-  geo->trig_distances[(MAP_SIZE - 1) * 2 * y + x] = d;
-}
-
