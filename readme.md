@@ -13,14 +13,17 @@ Use Page Up and Page Down to change map display mode.
 Press Spacebar to generate a new map.
 Press S to save the current map image.
 
-There are seven display modes:
+There are ten display modes:
 
 - Elevation
 - Smooth elevation
+- Cultural Area
+- Smooth Cultural Area
 - Humidity
 - Roughness of terrain
 - Life rating
 - City rating
+- Cultural rating
 - Distance from the currently selected tile (takes a lot of time to calculate)
 
 ## Map Representation
@@ -58,6 +61,11 @@ The city rating of a tile is determined by the sum of life ratings of tiles with
 Cities are founded on tiles with the greatest city rating on the map.
 Once a city is founded, the city ratings of nearby tiles are decreased,
 and more cities are placed based on the updated city ratings of tiles.
+
+When a city is placed, it brings up the cultural rating of nearby tiles.
+A culture is founded at the point of greatest cultural rating,
+from where its influence spreads.
+Like cities, when cultures are founded, they decrease the cultural rating of nearby tiles.
 
 ## Acknowledgement
 
