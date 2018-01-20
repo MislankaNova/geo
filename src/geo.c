@@ -130,6 +130,35 @@ void GEO_NewGeo(long int seed) {
     GEO_GEN_PlaceCity();
   }
   printf("\r");
+  count_width = (int)ceil(log10(MAX_AREA_COUNT));
+  for (int i = 1; i <= MAX_AREA_COUNT; ++i) {
+    printf("\rdefining area %*i/%i.", count_width, i, MAX_AREA_COUNT);
+    fflush(stdout);
+    GEO_GEN_PlaceArea(i - 1);
+  }
+
+  printf("\r-- Calculating areas\n");
+  for (int y = 0; y < MAP_SIZE - 1; ++y) {
+    for (int x = 0; x < 2 * (MAP_SIZE - 1); ++x) {
+      Trig *trig = TRIG(y, x);
+      int influence[MAX_AREA_COUNT];
+      for (int i = 0; i < MAX_AREA_COUNT; ++i) {
+        influence[i] = 0;
+      }
+      for (int j = 0; j < 3; ++j) {
+        for (int i = 0; i < MAX_AREA_COUNT; ++i) {
+          influence[i] += trig->vertices[j]->area_influence[i];
+        }
+      }
+      int final_area = 0;
+      for (int i = 0; i < MAX_AREA_COUNT; ++i) {
+        if (influence[i] > influence[final_area]) {
+          final_area = i;
+        }
+      }
+      trig->area_code = final_area;
+    }
+  }
 
   printf("- Creating new map - DONE\n");
 }
