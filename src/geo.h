@@ -13,6 +13,7 @@
 #define RIVER_TRY ((MAP_SIZE * MAP_SIZE) / 120)
 #define LAKE_TRY ((MAP_SIZE * MAP_SIZE) / 200)
 #define MAX_CITY_COUNT 40
+#define MAX_AREA_COUNT 12
 
 #define RIVER_THRESHOLD 320
 
@@ -64,6 +65,9 @@ typedef struct Tile {
   int humidity;
   int life;
   int city;
+  int culture;
+  int area_influence[MAX_AREA_COUNT];
+  int area_code;
   int flow;
   Direction down;
   RiverNode *river;
@@ -77,6 +81,7 @@ typedef struct Trig {
   int elevation;
   int slope;
   int city;
+  int area_code;
   Tile *vertices[3];
   struct Trig *adj[8];
 } Trig;

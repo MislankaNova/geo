@@ -26,7 +26,12 @@ void GEO_NewGeo(long int seed) {
       tile->humidity = 0;
       tile->flow = 0;
       tile->down = 0;
+      tile->city = 0;
+      tile->culture = 0;
       tile->river = NULL;
+      for (int i = 0; i < MAX_AREA_COUNT; ++i) {
+        tile->area_influence[i] = -100000;
+      }
       int dx = y & 1 ? 1 : 0;
       tile->adj[W]  = TILE(y    , x - 1);
       tile->adj[NW] = TILE(y - 1, x - 1 + dx);
