@@ -10,11 +10,29 @@
 const char* const _VIEW_MODE_NAMES[] = {
   "elevation", 
   "smooth-elevation",
+  "area", 
+  "smooth-area", 
   "humidity",
   "slope",
   "life",
   "city",
+  "culture",
   "distance"
+};
+
+const uint32_t _VIEW_AREA_COLOURS[] = {
+  0xA00000FF, // Dark red
+  0xFFFF00FF, // Bright yellow
+  0xFF0000FF, // Bright Red
+  0x8A2BE2FF, // Violet
+  0x00FFFFFF, // Aqua
+  0xFF1493FF, // Pink
+  0x004000FF, // Dark green
+  0xF0F0F0FF, // White
+  0x00FF00FF, // Bright green
+  0xFFA500FF, // Orange
+  0x101010FF, // Black
+  0x400AC0FF, // Purple
 };
 
 static inline int max3(int x, int y, int z) {
@@ -92,6 +110,35 @@ uint32_t _VIEW_InterpolateTrig(Trig *trig, int size, int left, int base) {
     / (double)((-size) * size);
   double l3 = 1.0 - l1 - l2;
   return _VIEW_GetElevationColour(el * l3 + er * l2 + et * l1);
+}
+
+uint32_t _VIEW_InterpolateArea(Trig *trig, int size, int left, int base) {
+  int et = trig->vertices[VERT_TIP]->elevation;
+  int el = trig->vertices[VERT_LEFT]->elevation;
+  int er = trig->vertices[VERT_RIGHT]->elevation;
+  size += 1;
+  double l1 = (double)(base) / (double)(size);
+  double l2 = (double)((-size) * (left + 1.0) + (size / 2) * (base + 1.0))
+    / (double)((-size) * size);
+  double l3 = 1.0 - l1 - l2;
+  int e = el * l3 + er * l2 + et * l1;
+  if (e < 0) {
+    return _VIEW_GetElevationColour(-1);
+  }
+
+  int ma = -200000;
+  int area = 0;
+  for (int i = 0; i < MAX_AREA_COUNT; ++i) {
+    int it = trig->vertices[VERT_TIP]->area_influence[i];
+    int il = trig->vertices[VERT_LEFT]->area_influence[i];
+    int ir = trig->vertices[VERT_RIGHT]->area_influence[i];
+    int current = il * l3 + ir * l2 + it * l1;
+    if (current > ma) {
+      ma = current;
+      area = i;
+    }
+  }
+  return _VIEW_AREA_COLOURS[area];
 }
 
 uint32_t _VIEW_RenderTrigPixel(Trig *trig, int size, int left, int base) {
@@ -204,6 +251,154 @@ void _VIEW_DrawRivers(View *view) {
         current = next;
         next = next->next;
       }
+    }
+  }
+  SDL_DestroyRenderer(sr);
+}
+
+void _VIEW_DrawAreaTrigs(View *view) {
+  SDL_Renderer *sr = SDL_CreateSoftwareRenderer(view->draw_surface);
+  SDL_SetRenderDrawBlendMode(sr, SDL_BLENDMODE_BLEND);
+  for (int y = 0; y <MAP_SIZE - 1; ++y) {
+    for (int x = 0; x < 2 * (MAP_SIZE - 1); ++x) {
+      uint32_t colour = 0x00000000;
+      int dis = view->tile_size / 2;
+      int s = view->tile_size;
+      if (y & 1) {
+        if (x & 1) {
+          for (int i = 0; i < s - 1; ++i) {
+            for (int j = i / 2; j < s - i / 2; ++j) {
+              colour = _VIEW_InterpolateArea(
+                  TRIG(y, x),
+                  view->tile_size,
+                  j,
+                  i
+              );
+              SDL_SetRenderDrawColor(
+                  sr,
+                  (colour & 0xFF000000) >> 24,
+                  (colour & 0x00FF0000) >> 16,
+                  (colour & 0x0000FF00) >> 8,
+                  0xFF
+              );
+              SDL_RenderDrawPoint(
+                  sr,
+                  (x / 2) * s + j + s / 2 + dis,
+                  y * s + i + dis
+              );
+            }
+          }
+        } else {
+          for (int i = 0; i < s; ++i) {
+            for (int j = i / 2; j < s - i / 2; ++j) {
+              colour = _VIEW_InterpolateArea(
+                  TRIG(y, x),
+                  view->tile_size,
+                  j,
+                  i
+              );
+              SDL_SetRenderDrawColor(
+                  sr,
+                  (colour & 0xFF000000) >> 24,
+                  (colour & 0x00FF0000) >> 16,
+                  (colour & 0x0000FF00) >> 8,
+                  0xFF
+              );
+              SDL_RenderDrawPoint(
+                  sr,
+                  (x / 2) * s + j + dis,
+                  (y + 1) * s - i + dis
+              );
+            }
+          }
+        }
+      } else {
+        if (x & 1) {
+          for (int i = 0; i < s; ++i) {
+            for (int j = i / 2; j < s - i / 2; ++j) {
+              colour = _VIEW_InterpolateArea(
+                  TRIG(y, x),
+                  view->tile_size,
+                  j,
+                  i
+              );
+              SDL_SetRenderDrawColor(
+                  sr,
+                  (colour & 0xFF000000) >> 24,
+                  (colour & 0x00FF0000) >> 16,
+                  (colour & 0x0000FF00) >> 8,
+                  0xFF
+              );
+              SDL_RenderDrawPoint(
+                  sr,
+                  (x / 2) * s + j + s / 2 + dis,
+                  (y + 1) * s - i + dis
+              );
+            }
+          }
+        } else {
+          for (int i = 0; i < s; ++i) {
+            for (int j = i / 2; j < s - i / 2; ++j) {
+              colour = _VIEW_InterpolateArea(
+                  TRIG(y, x),
+                  view->tile_size,
+                  j,
+                  i
+              );
+              SDL_SetRenderDrawColor(
+                  sr,
+                  (colour & 0xFF000000) >> 24,
+                  (colour & 0x00FF0000) >> 16,
+                  (colour & 0x0000FF00) >> 8,
+                  0xFF
+              );
+              SDL_RenderDrawPoint(
+                  sr,
+                  (x / 2) * s + j + dis,
+                  y * s + i + dis
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+void _VIEW_DrawAreaTiles(View *view) {
+  SDL_Rect r;
+  r.w = view->tile_size;
+  r.h = view->tile_size;
+  SDL_Renderer *sr = SDL_CreateSoftwareRenderer(view->draw_surface);
+  SDL_SetRenderDrawBlendMode(sr, SDL_BLENDMODE_BLEND);
+  for (int y = 0; y < MAP_SIZE; ++y) {
+    for (int x = 0; x < MAP_SIZE; ++x) {
+      r.y = y * view->tile_size;
+      r.x = x * view->tile_size;
+      if (y & 1) {
+        r.x += view->tile_size / 2;
+      }
+      int d = geo->tiles[MAP_SIZE * y + x].elevation;
+      uint32_t colour = _VIEW_GetElevationColour(d);
+      if (d >= 0) {
+        int area_code = 0;
+        int ma = -200000;
+        for (int i = 0; i < MAX_AREA_COUNT; ++i) {
+          if (geo->tiles[MAP_SIZE * y + x].area_influence[i] > ma) {
+            area_code = i;
+            ma = geo->tiles[MAP_SIZE * y + x].area_influence[i];
+          }
+        }
+        colour = _VIEW_AREA_COLOURS[area_code];
+      }
+      SDL_SetRenderDrawColor(
+          sr,
+          (colour & 0xFF000000) >> 24,
+          (colour & 0x00FF0000) >> 16,
+          (colour & 0x0000FF00) >> 8,
+          0xA0
+      );
+      SDL_RenderFillRect(sr, &r);
     }
   }
   SDL_DestroyRenderer(sr);
@@ -356,6 +551,25 @@ void GEO_UpdateViewCity(View *view) {
       d = 0xFF - d;
       colour = d << 24 | d << 16 | 0xF0 << 8 | 0xFF;
     }
+    r.y = view->tile_size * tile->y;
+    r.x = view->tile_size * tile->x;
+    if (tile->y & 1) {
+      r.x += view->tile_size / 2;
+    }
+    SDL_FillRect(view->draw_surface, &r, colour);
+  }
+}
+
+void GEO_UpdateViewCulture(View *view) {
+  SDL_Rect r;
+  r.w = view->tile_size;
+  r.h = view->tile_size;
+  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+    Tile *tile = &geo->tiles[i];
+    uint32_t colour = 0xD0D0D0FF;
+    int d = (0xFF * tile->culture) / 2400;
+    d = 0xFF - d;
+    colour = d << 24 | d << 16 | 0xF0 << 8 | 0xFF;
     r.y = view->tile_size * tile->y;
     r.x = view->tile_size * tile->x;
     if (tile->y & 1) {
@@ -569,6 +783,17 @@ void GEO_UpdateView(View *view) {
       _VIEW_DrawRivers(view);
       _VIEW_DrawCities(view);
       break;
+    case GEO_VIEW_MODE_AREA:
+      GEO_UpdateViewElevation(view);
+      _VIEW_DrawAreaTiles(view);
+      _VIEW_DrawRivers(view);
+      _VIEW_DrawCities(view);
+      break;
+    case GEO_VIEW_MODE_AREA_TRIG:
+      _VIEW_DrawAreaTrigs(view);
+      _VIEW_DrawRivers(view);
+      _VIEW_DrawCities(view);
+      break;
     case GEO_VIEW_MODE_HUMIDITY:
       GEO_UpdateViewHumidity(view);
       break;
@@ -580,6 +805,9 @@ void GEO_UpdateView(View *view) {
       break;
     case GEO_VIEW_MODE_CITY:
       GEO_UpdateViewCity(view);
+      break;
+    case GEO_VIEW_MODE_CULTURE:
+      GEO_UpdateViewCulture(view);
       break;
     case GEO_VIEW_MODE_DISTANCE:
       GEO_UpdateViewElevation(view);

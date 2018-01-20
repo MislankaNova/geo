@@ -139,7 +139,7 @@ int geo_main(void) {
               alive = false;
               break;
             case SDL_SCANCODE_PAGEDOWN:
-              view->mode = (view->mode + 1) % 7;
+              view->mode = (view->mode + 1) % 10;
               if (GEO_VIEW_MODE_DISTANCE == view->mode) {
                 GEO_ALG_CalculateTileDistance(
                     NULL,
@@ -151,7 +151,7 @@ int geo_main(void) {
               GEO_UpdateView(view);
               break;
             case SDL_SCANCODE_PAGEUP:
-              view->mode = (view->mode + 6) % 7;
+              view->mode = (view->mode + 9) % 10;
               if (GEO_VIEW_MODE_DISTANCE == view->mode) {
                 GEO_ALG_CalculateTileDistance(
                     NULL,
