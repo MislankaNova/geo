@@ -1,4 +1,4 @@
-![Example Output](/example.png)
+![Example Output](/example-000000005a63ca5c-smooth-elevation-2x.png)
 
 # geo: A Simple Procedural Terrain Generator
 
@@ -66,6 +66,8 @@ When a city is placed, it brings up the cultural rating of nearby tiles.
 A culture is founded at the point of greatest cultural rating,
 from where its influence spreads.
 Like cities, when cultures are founded, they decrease the cultural rating of nearby tiles.
+
+![Example of Area Placement](/example-000000005a63ca5c-area-2x.png)
 
 ## Acknowledgement
 
