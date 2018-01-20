@@ -36,4 +36,6 @@ void GEO_GEN_CalculateCity(int thread_count);
 
 void GEO_GEN_PlaceCity();
 
+void GEO_GEN_PlaceArea(int area_code);
+
 #endif

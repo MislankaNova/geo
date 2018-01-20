@@ -129,6 +129,50 @@ void GEO_GEN_CalculateCity(int thread_count) {
 #endif
 }
 
+void _GEN_SpreadInfluence(int area_code, int strength, Tile *tile) {
+  if (tile->area_influence[area_code] >= strength) {
+    return;
+  }
+  tile->area_influence[area_code] = strength;
+  if (tile->elevation < 0) {
+    strength -= 400;
+  } else {
+    strength -= 200;
+  }
+  for (int j = 0; j < 6; ++j) {
+    if (tile->adj[j]) {
+      int next_strength = strength;
+      if (tile->adj[j]->elevation < tile->elevation) {
+        next_strength -= (tile->elevation - tile->adj[j]->elevation) * 30;
+      }
+      if (tile->adj[j]->elevation < 0 && tile->elevation >= 0) {
+        next_strength -= 30000;
+      }
+      _GEN_SpreadInfluence(
+          area_code,
+          next_strength,
+          tile->adj[j]
+      );
+    }
+  }
+}
+
+const DistanceParameters PLACE_AREA_PARAMETERS = {
+  0,
+  6,
+  7,
+  8,
+  1.6
+};
+
+const DistanceParameters REMOVE_CULTURE_PARAMETERS = {
+  0,
+  20,
+  5,
+  8,
+  1.6
+};
+
 void GEO_GEN_PlaceCity() {
   Trig *place = NULL;
   int mc = 0;
@@ -161,6 +205,66 @@ void GEO_GEN_PlaceCity() {
         }
       }
     }
+
+    // also add culture
+    if (mc > 200) {
+      GEO_ALG_CalculateTileDistance(
+          &PLACE_AREA_PARAMETERS,
+          place->vertices[j],
+          480,
+          &geo->tile_distances
+      );
+      for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+        if (geo->tile_distances[i] < 200) {
+          geo->tiles[i].culture += ((200 - geo->tile_distances[i])
+                                  * (200 - geo->tile_distances[i])) / 200;
+        }
+      }
+    }
   }
 }
 
+void GEO_GEN_PlaceArea(int area_code) {
+  Trig *place = NULL;
+  int mc = 0;
+  int total = (MAP_SIZE - 1) * 2 * (MAP_SIZE - 1);
+  for (int i = 0; i < total; ++i) {
+    Trig *trig = &geo->trigs[i];
+    int culture = 
+        trig->vertices[VERT_TIP]->culture  +
+        trig->vertices[VERT_LEFT]->culture +
+        trig->vertices[VERT_RIGHT]->culture;
+    if (culture > mc) {
+      place = trig;
+      mc = culture;
+    }
+  }
+  if (mc < 400) {
+    return;
+  }
+  for (int j = 0; j < 3; ++j) {
+    GEO_ALG_CalculateTileDistance(
+        &REMOVE_CULTURE_PARAMETERS,
+        place->vertices[j],
+        480,
+        &geo->tile_distances
+    );
+    for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+      if (geo->tile_distances[i] < 300) {
+        geo->tiles[i].culture -= (300 - geo->tile_distances[i]) * (300 - geo->tile_distances[i]);
+        if (geo->tiles[i].culture < 0) {
+          geo->tiles[i].culture = 0;
+        }
+      }
+    }
+  }
+
+  place->area_code = area_code;
+  for (int j = 0; j < 3; ++j) {
+    _GEN_SpreadInfluence(
+        area_code,
+        20000 + mc * 8,
+        place->vertices[j]
+    );
+  }
+}
