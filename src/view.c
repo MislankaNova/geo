@@ -257,8 +257,13 @@ void _VIEW_DrawRivers(View *view) {
 }
 
 void _VIEW_DrawAreaTrigs(View *view) {
-  SDL_Renderer *sr = SDL_CreateSoftwareRenderer(view->draw_surface);
-  SDL_SetRenderDrawBlendMode(sr, SDL_BLENDMODE_BLEND);
+  uint32_t **original = calloc(
+      (MAP_SIZE + 1) * view->tile_size,
+      sizeof(uint32_t*)
+  );
+  for (int i = 0; i < (MAP_SIZE + 1) * view->tile_size; ++i) {
+    original[i] = calloc(MAP_SIZE * view->tile_size, sizeof(uint32_t));
+  }
   for (int y = 0; y <MAP_SIZE - 1; ++y) {
     for (int x = 0; x < 2 * (MAP_SIZE - 1); ++x) {
       uint32_t colour = 0x00000000;
@@ -274,18 +279,9 @@ void _VIEW_DrawAreaTrigs(View *view) {
                   j,
                   i
               );
-              SDL_SetRenderDrawColor(
-                  sr,
-                  (colour & 0xFF000000) >> 24,
-                  (colour & 0x00FF0000) >> 16,
-                  (colour & 0x0000FF00) >> 8,
-                  0xFF
-              );
-              SDL_RenderDrawPoint(
-                  sr,
-                  (x / 2) * s + j + s / 2 + dis,
-                  y * s + i + dis
-              );
+              original
+                  [(x / 2) * s + j + s / 2 + dis]
+                  [y * s + i + dis] = colour;
             }
           }
         } else {
@@ -297,18 +293,9 @@ void _VIEW_DrawAreaTrigs(View *view) {
                   j,
                   i
               );
-              SDL_SetRenderDrawColor(
-                  sr,
-                  (colour & 0xFF000000) >> 24,
-                  (colour & 0x00FF0000) >> 16,
-                  (colour & 0x0000FF00) >> 8,
-                  0xFF
-              );
-              SDL_RenderDrawPoint(
-                  sr,
-                  (x / 2) * s + j + dis,
-                  (y + 1) * s - i + dis
-              );
+              original
+                  [(x / 2) * s + j + dis]
+                  [(y + 1) * s - i + dis] = colour;
             }
           }
         }
@@ -322,18 +309,9 @@ void _VIEW_DrawAreaTrigs(View *view) {
                   j,
                   i
               );
-              SDL_SetRenderDrawColor(
-                  sr,
-                  (colour & 0xFF000000) >> 24,
-                  (colour & 0x00FF0000) >> 16,
-                  (colour & 0x0000FF00) >> 8,
-                  0xFF
-              );
-              SDL_RenderDrawPoint(
-                  sr,
-                  (x / 2) * s + j + s / 2 + dis,
-                  (y + 1) * s - i + dis
-              );
+              original
+                  [(x / 2) * s + j + s / 2 + dis]
+                  [(y + 1) * s - i + dis] = colour;
             }
           }
         } else {
@@ -345,24 +323,56 @@ void _VIEW_DrawAreaTrigs(View *view) {
                   j,
                   i
               );
-              SDL_SetRenderDrawColor(
-                  sr,
-                  (colour & 0xFF000000) >> 24,
-                  (colour & 0x00FF0000) >> 16,
-                  (colour & 0x0000FF00) >> 8,
-                  0xFF
-              );
-              SDL_RenderDrawPoint(
-                  sr,
-                  (x / 2) * s + j + dis,
-                  y * s + i + dis
-              );
+              original
+                  [(x / 2) * s + j + dis]
+                  [y * s + i + dis] = colour;
             }
           }
         }
       }
     }
   }
+
+  SDL_Renderer *sr = SDL_CreateSoftwareRenderer(view->draw_surface);
+  SDL_SetRenderDrawBlendMode(sr, SDL_BLENDMODE_BLEND);
+
+  for (int x = 2; x < (MAP_SIZE + 1) * view->tile_size - 2; ++x) {
+    for (int y = 2; y < MAP_SIZE * view->tile_size - 2; ++y) {
+      uint32_t colour = original[x][y];
+      if (colour != 0x0000A0FF) {
+        for (int i = -2; i < 2; ++i) {
+          for (int j = -2; j < 2; ++j) {
+            if (original[x][y] != original[x + i][y + j]
+                && original[x + i][y + j] != 0x0000A0FF) {
+              colour = 0x000000FF;
+            }
+          }
+        }
+        for (int i = -1; i < 1; ++i) {
+          for (int j = -1; j < 1; ++j) {
+            if (original[x][y] != original[x + i][y + j]
+                && original[x + i][y + j] != 0x0000A0FF) {
+              colour = 0xFFFFFFFF;
+            }
+          }
+        }
+      }
+      SDL_SetRenderDrawColor(
+          sr,
+          (colour & 0xFF000000) >> 24,
+          (colour & 0x00FF0000) >> 16,
+          (colour & 0x0000FF00) >> 8,
+          (colour & 0x000000FF) >> 0
+      );
+      SDL_RenderDrawPoint(sr, x, y);
+    }
+  }
+
+  for (int i = 0; i < (MAP_SIZE + 1) * view->tile_size; ++i) {
+    free(original[i]);
+  }
+  free(original);
+  SDL_DestroyRenderer(sr);
 }
 
 void _VIEW_DrawAreaTiles(View *view) {
