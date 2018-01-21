@@ -12,19 +12,19 @@ all: geo
 geo: main.o view.o geo.o alg_path.o
 	$(CC) *.o $(CFLAGS) $(LDLIBS) -o geo
 
-view.o: view.h geo.o
+view.o: geo.h view.h geo.o
 
 geo.o: geo.h gen_elevation.o gen_climate.o gen_river.o gen_demography.o
 
-gen_elevation.o: noise.o gen.h gen_elevation.c
+gen_elevation.o: geo.h noise.o gen.h gen_elevation.c
 
-gen_climate.o: gen.h gen_climate.c
+gen_climate.o: geo.h gen.h gen_climate.c
 
-gen_river.o: gen.h gen_river.c
+gen_river.o: geo.h gen.h gen_river.c
 
-gen_demography.o: gen.h gen_demography.c alg_path.o
+gen_demography.o: geo.h gen.h gen_demography.c alg_path.o
 
-alg_path.o: algorithm.h alg_path.c
+alg_path.o: geo.h algorithm.h alg_path.c
 
 noise.o: open-simplex-noise.o noise.h noise.c
 
