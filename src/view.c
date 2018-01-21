@@ -130,8 +130,17 @@ uint32_t _VIEW_InterpolateArea(Trig *trig, int size, int left, int base) {
   int area = 0;
   for (int i = 0; i < MAX_AREA_COUNT; ++i) {
     int it = trig->vertices[VERT_TIP]->area_influence[i];
+    if (et < 0) {
+      it = 0;
+    }
     int il = trig->vertices[VERT_LEFT]->area_influence[i];
+    if (el < 0) {
+      il = 0;
+    }
     int ir = trig->vertices[VERT_RIGHT]->area_influence[i];
+    if (er < 0) {
+      ir = 0;
+    }
     int current = il * l3 + ir * l2 + it * l1;
     if (current > ma) {
       ma = current;
