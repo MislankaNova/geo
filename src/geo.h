@@ -69,8 +69,8 @@ typedef struct Tile {
   int x;
   int base_elevation;
   int elevation;
-  int base_hardness;
-  int hardness;
+  Hardness base_hardness;
+  Hardness hardness;
   int slope;
   int humidity;
   int life;

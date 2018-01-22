@@ -22,7 +22,10 @@ void GEO_NewGeo(long int seed) {
       tile->id = MAP_SIZE * y + x;
       tile->y = y;
       tile->x = x;
+      tile->base_elevation = 0;
       tile->elevation = 0;
+      tile->base_hardness = HARDNESS_AVERAGE;
+      tile->hardness = HARDNESS_AVERAGE;
       tile->humidity = 0;
       tile->flow = 0;
       tile->down = 0;
