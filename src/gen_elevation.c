@@ -18,6 +18,7 @@ void _GEN_GenerateMountain(
     return;
   }
   tile->elevation = height;
+  tile->hardness = HARDNESS_HARD;
   for (int i = 0; i < 6; ++i) {
     if (tile->adj[i]) {
       _GEN_GenerateMountain(tile->adj[i], height - 50, decline);
@@ -97,6 +98,7 @@ void GEO_GEN_InitialiseElevation() {
         h = 0.3 + pow((h - 0.3) / 0.25, 100.0) * 0.25;
       }
       TILE(y, x)->elevation = h * 10000 - 3000;
+      TILE(y, x)->hardness = HARDNESS_AVERAGE;
     }
   }
   destroy_gradient_generator(g0);
@@ -390,6 +392,7 @@ void GEO_GEN_RemoveInlandSea() {
     if (TILE_INLAND_SEA == tile->type) {
       tile->type = TILE_LAND;
       tile->elevation = 5;
+      tile->hardness = HARDNESS_SOFT;
     }
   }
 }
@@ -412,6 +415,7 @@ void GEO_GEN_RemoveDepression(
           }
           if (emin >= e) {
             tile->elevation = emin + (rand() % 3) * (rand() % 4);
+            tile->hardness = HARDNESS_SOFT;
             change = true;
           }
         }

@@ -52,6 +52,16 @@ void GEO_NewGeo(long int seed) {
   printf("-- Handling map edge\n");
   GEO_GEN_HandleEdge();
   GEO_GEN_AssignType();
+
+  // Preserve base elevation and hardness
+  for (int y = 0; y < MAP_SIZE; ++y) {
+    for (int x = 0; x < MAP_SIZE; ++x) {
+      Tile *tile = TILE(y, x);
+      tile->base_elevation = tile->elevation;
+      tile->base_hardness = tile->hardness;
+    }
+  }
+
   printf("-- Removing depression\n");
   GEO_GEN_RemoveDepression(-3000);
   GEO_GEN_AssignType();
