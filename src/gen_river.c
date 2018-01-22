@@ -7,34 +7,101 @@
 #include "geo.h"
 #include "gen.h"
 
+static const int SOFT_FLOW_PARAMETERS[] = {
+  1000,
+  500,
+  200,
+  200,
+  200,
+  200,
+  100,
+  100,
+  100,
+  100,
+  0
+};
+
+static const int AVERAGE_FLOW_PARAMETERS[] = {
+  790,
+  6,
+  2,
+  1,
+  1,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+};
+
+static const int HARD_FLOW_PARAMETERS[] = {
+  600,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+};
+
+static const int VERY_HARD_FLOW_PARAMETERS[] = {
+  400,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+};
+
 void _GEN_ErodeBack(
-    Tile *tile, 
-    int p0,
-    int p1,
-    int p2,
-    int p3,
-    int p4,
-    int p5) {
-  if (p0 - tile->flow > 2000) {
-    p0 = tile->flow + 2000;
+    Tile *tile,
+    int previous[static 10]) {
+  Hardness hardness = tile->base_hardness;
+  if (tile->base_elevation - tile->elevation < 200) {
+    hardness = tile->hardness;
   }
-  int discharge = (tile->flow * 92 + p0 * 3 + p1 + p2 + p3 + p4 + p5) / 100;
-  if (discharge > 4000) {
-    discharge = 4000;
+  int const *parameters = AVERAGE_FLOW_PARAMETERS;
+  switch (hardness) {
+    case HARDNESS_SOFT: parameters = SOFT_FLOW_PARAMETERS; break;
+    case HARDNESS_AVERAGE: parameters = AVERAGE_FLOW_PARAMETERS; break;
+    case HARDNESS_HARD: parameters = HARD_FLOW_PARAMETERS; break;
+    case HARDNESS_VERY_HARD: parameters = VERY_HARD_FLOW_PARAMETERS; break;
+  }
+  int discharge = parameters[0] * tile->flow;
+  for (int i = 0; i < 10; ++i) {
+    discharge += parameters[i + 1] * previous[i];
+  }
+  if (discharge > 4000000) {
+    discharge = 4000000;
   } else if (0 == discharge) {
     discharge = 1;
   }
-  int allow = (TILE_SIZE / discharge) * 2;
-  allow += rand() % (TILE_SIZE / discharge);
+  int allow = (TILE_SIZE * 2000) / discharge;
+  allow += rand() % ((TILE_SIZE * 1000) / discharge);
   if (tile->elevation < 0) {
     allow *= 50;
   }
   if (tile->elevation > tile->adj[tile->down]->elevation + allow) {
     tile->elevation = tile->adj[tile->down]->elevation + allow;
   }
+  int next[10];
+  next[0] = tile->flow;
+  for (int i = 0; i < 9; ++i) {
+    next[i + 1] = previous[i];
+  }
   for (int j = 0; j < 6; ++j) {
     if (tile == tile->adj[j]->adj[tile->adj[j]->down]) {
-      _GEN_ErodeBack(tile->adj[j], tile->flow, p0, p1, p2, p3, p4);
+      _GEN_ErodeBack(tile->adj[j], next);
     }
   }
 }
@@ -61,15 +128,11 @@ void GEO_GEN_GenerateRivers() {
           last = next;
           next = next->adj[next->down];
         }
-        _GEN_ErodeBack(
-            last,
-            last->flow,
-            last->flow,
-            last->flow,
-            last->flow,
-            last->flow,
-            last->flow
-        );
+        int previous[10];
+        for (int i = 0; i < 10; ++i) {
+          previous[i] = last->flow;
+        }
+        _GEN_ErodeBack(last, previous);
       }
     }
   }
