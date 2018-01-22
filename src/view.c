@@ -12,6 +12,7 @@ const char* const _VIEW_MODE_NAMES[] = {
   "smooth-elevation",
   "area", 
   "smooth-area", 
+  "hardness",
   "humidity",
   "slope",
   "life",
@@ -537,6 +538,30 @@ void GEO_UpdateViewHumidity(View *view) {
   }
 }
 
+void GEO_UpdateViewHardness(View *view) {
+  SDL_Rect r;
+  r.w = view->tile_size;
+  r.h = view->tile_size;
+  for (int i = 0; i < MAP_SIZE * MAP_SIZE; ++i) {
+    Tile *tile = &geo->tiles[i];
+    uint32_t colour = 0xD0D0D0FF;
+    if (tile->elevation >= 0) {
+      switch (tile->hardness) {
+        case HARDNESS_SOFT: colour = 0x202020FF; break;  
+        case HARDNESS_AVERAGE: colour = 0xA0A020FF; break;  
+        case HARDNESS_HARD: colour = 0xF02020FF; break;  
+        case HARDNESS_VERY_HARD: colour = 0xF020F0FF; break;
+      }
+    }
+    r.y = view->tile_size * tile->y;
+    r.x = view->tile_size * tile->x;
+    if (tile->y & 1) {
+      r.x += view->tile_size / 2;
+    }
+    SDL_FillRect(view->draw_surface, &r, colour);
+  }
+}
+
 void GEO_UpdateViewLife(View *view) {
   SDL_Rect r;
   r.w = view->tile_size;
@@ -815,6 +840,9 @@ void GEO_UpdateView(View *view) {
       break;
     case GEO_VIEW_MODE_HUMIDITY:
       GEO_UpdateViewHumidity(view);
+      break;
+    case GEO_VIEW_MODE_HARDNESS:
+      GEO_UpdateViewHardness(view);
       break;
     case GEO_VIEW_MODE_SLOPE:
       GEO_UpdateViewSlope(view);
