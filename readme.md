@@ -19,6 +19,7 @@ There are ten display modes:
 - Smooth elevation
 - Cultural Area
 - Smooth Cultural Area
+- Land Hardness
 - Humidity
 - Roughness of terrain
 - Life rating
@@ -53,6 +54,8 @@ Humidity of each tile is calculated using the Monte Carlo Method,
 by tracking wet air which moves randomly through the map.
 The water flux flowing down each tile is calculated,
 headward erosion than creates valleys whose width vary with the amount of water flux.
+The rate of erosion depends on the hardness of the land tile,
+which is determined by the way in which the land is formed at the tile eroded.
 Rivers form at places where the water flux is above a certain threshold.
 
 Each tile will receive a life rating,
