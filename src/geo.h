@@ -41,6 +41,13 @@ typedef enum TileType {
   TILE_INLAND_SEA
 } TileType;
 
+typedef enum Hardness {
+  HARDNESS_SOFT,
+  HARDNESS_AVERAGE,
+  HARDNESS_HARD,
+  HARDNESS_VERY_HARD
+} Hardness;
+
 typedef enum VertexPosition {
   VERT_TIP,
   VERT_LEFT,
@@ -60,7 +67,10 @@ typedef struct Tile {
   TileType type;
   int y;
   int x;
+  int base_elevation;
   int elevation;
+  int base_hardness;
+  int hardness;
   int slope;
   int humidity;
   int life;
