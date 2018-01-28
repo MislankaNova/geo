@@ -35,7 +35,10 @@ static int init_work(void *worker_data_) {
   return 0;
 }
 
-int geo_main(void) {
+int geo_main(int argc, char **argv) {
+  // TODO: use the arguments!
+  (void)argc;
+  (void)argv;
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_Window *window;
@@ -244,14 +247,15 @@ int CALLBACK WinMain(
   (void)hPrevInstance;
   (void)lpCmdLine;
   (void)nCmdShow;
-  geo_main();
+  // TODO: Implement command line argument passing under windows
+  geo_main(0, NULL);
   return 0;
 }
 
 #else
 
-int main() {
-  geo_main();
+int main(int argc, char **argv) {
+  geo_main(argc, argv);
   return EXIT_SUCCESS;
 }
 
